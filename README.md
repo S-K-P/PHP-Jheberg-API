@@ -4,7 +4,7 @@ PHP Jheberg API
 Class PHP pour utiliser l'API de Jheberg
 
 
-## Exemple pour upload un fichier
+### Exemple pour upload un fichier
 
 ```php
 <?php
@@ -18,7 +18,7 @@ if(!$jheberg->haveError())
 ?>
 ```
 
-## Exemple pour utiliser le remote upload
+### Exemple pour utiliser le remote upload
 
 ```php
 <?php
@@ -32,7 +32,7 @@ if(!$jheberg->haveError())
 ?>
 ```
 
-## Exemple pour upload un fichier avec un utilisateur
+### Exemple pour upload un fichier avec un utilisateur
 
 ```php
 <?php
@@ -47,7 +47,7 @@ if(!$jheberg->haveError())
 ?>
 ```
 
-## Exemple pour utiliser le remote upload avec un utilisateur
+### Exemple pour utiliser le remote upload avec un utilisateur
 
 ```php
 <?php
@@ -62,7 +62,7 @@ if(!$jheberg->haveError())
 ?>
 ```
 
-## Exemple pour vérifier un lien
+### Exemple pour vérifier un lien
 
 ```php
 <?php
@@ -76,7 +76,7 @@ if($jheberg->validityLink("http://jheberg.net/download/mon-fichier"))
 ?>
 ```
 
-## Exemple pour récupérer les informations d'un lien
+### Exemple pour récupérer les informations d'un lien
 
 ```php
 <?php
@@ -90,7 +90,7 @@ if($jheberg->getInfoLink("http://jheberg.net/download/mon-fichier"))
 ?>
 ```
 
-## Exemple pour créer un dossier
+### Exemple pour créer un dossier
 
 ```php
 <?php
@@ -110,7 +110,7 @@ if(!$jheberg->haveError())
 ?>
 ```
 
-## Exemple pour mettre un mot de passe sur un fichier
+### Exemple pour mettre un mot de passe sur un fichier
 
 ```php
 <?php
