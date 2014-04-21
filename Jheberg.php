@@ -38,13 +38,13 @@ class Jheberg
 	 * @var int
 	 * @access private
 	 */
-	private $httpCode = null;
+	private $httpCode = 0;
 	/**
 	 * Contient les différentes erreurs
 	 * @var array
 	 * @access private
 	 */
-	private $error = null;
+	private $error = array();
 	/**
 	 * Défini si l'utilisateur doit être utilisé lors de l'interrogation de l'API de Jheberg
 	 * @var boolean
@@ -412,7 +412,7 @@ class Jheberg
 	 */
 	public function getLastError()
 	{
-		return is_array($this->error) ? end($this->error) : array();
+		return end($this->error);
 	}
 	/**
 	 * Retourne toutes les erreurs
@@ -420,7 +420,7 @@ class Jheberg
 	 */
 	public function getAllError()
 	{
-		return is_array($this->error) ? $this->error : array();
+		return $this->error;
 	}
 }
 ?>
