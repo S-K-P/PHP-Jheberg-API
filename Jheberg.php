@@ -144,7 +144,7 @@ class Jheberg
 	}
 	/**
 	 * Renvoie la disponibilité du fichier
-	 * @param  string $idFile ID du fichier
+	 * @param  string $idFile ID ou lien complet du fichier
 	 * @return boolean
 	 */
 	public function validityLink($idFile)
@@ -154,7 +154,7 @@ class Jheberg
 	}
 	/**
 	 * Renvoie les informations de base sur un fichier et renvoie la disponibilité sur les hébergeurs
-	 * @param  string $idFile ID du fichier
+	 * @param  string $idFile ID ou lien complet du fichier
 	 * @return mixed
 	 */
 	public function getInfoLink($idFile)
