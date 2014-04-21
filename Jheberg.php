@@ -234,7 +234,7 @@ class Jheberg
 	/**
 	 * Ajoute un mot de passe sur un fichier
 	 * @param  string $passwordFile Mot de passe à configurer
-	 * @param  string $idFile       ID du fichier
+	 * @param  string $idFile       ID ou lien complet du fichier
 	 * @return mixed
 	 */
 	public function putPasswordFile($passwordFile, $idFile)
