@@ -3,7 +3,7 @@
  * Class pour utiliser l'API de Jheberg
  *
  * @author S-K-P
- * @version 1.0
+ * @version 1.1
  */
 class Jheberg
 {
