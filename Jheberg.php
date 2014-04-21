@@ -34,6 +34,12 @@ class Jheberg
 		"POSTFIELDS" => null,
 		);
 	/**
+	 * Contient le nom de la dernière methode executé
+	 * @var string
+	 * @access private
+	 */
+	private $lastAction = null;
+	/**
 	 * Contient le http code de la dernière requête retourné par l'API de Jheberg
 	 * @var int
 	 * @access private
@@ -68,7 +74,7 @@ class Jheberg
 	{
 		if(!is_callable("curl_init"))
 		{
-			throw new BadMethodCallException("The curl extension is disabled");
+			throw new BadFunctionCallException("The curl extension is disabled");
 		}
 	}
 	/**
@@ -77,6 +83,7 @@ class Jheberg
 	 */
 	public function generateUploadServer($newServer = false)
 	{
+		$this->setLastAction(__FUNCTION__);
 		if($this->server["upload"] == null || $newServer)
 		{
 			$requestOptions = array(
@@ -97,21 +104,26 @@ class Jheberg
 	public function fileUpload($fileUpload)
 	{
 		$this->generateUploadServer();
-		$requestOptions = array(
-			"server" => "upload",
-			"command" => "upload/",
-		);
-		$datasPost = $this->buildPostUser();
-		$datasPost["file"] = "@".realpath($fileUpload);
-		$curlOptions = array(
-			"POSTFIELDS" => $datasPost,
-			);
-		$infoFile = $this->ask($requestOptions, $curlOptions);
-		if(!empty($infoFile))
+		if(!$this->haveError())
 		{
-			return empty($infoFile->error) ? $infoFile : $this->newError("JHEBERG UPLOAD ERROR", $infoFile->error);
+			$this->setLastAction(__FUNCTION__);
+			$requestOptions = array(
+				"server" => "upload",
+				"command" => "upload/",
+			);
+			$datasPost = $this->buildPostUser();
+			$datasPost["file"] = "@".realpath($fileUpload);
+			$curlOptions = array(
+				"POSTFIELDS" => $datasPost,
+				);
+			$infoFile = $this->ask($requestOptions, $curlOptions);
+			if(!empty($infoFile))
+			{
+				return empty($infoFile->error) ? $infoFile : $this->newError("JHEBERG UPLOAD ERROR", $infoFile->error);
+			}
+			return $this->newError("ERROR FILE UPLOAD");
 		}
-		return $this->newError("ERROR FILE UPLOAD");
+		return null;
 	}
 	/**
 	 * Upload un fichier à partir d'une URL
@@ -122,25 +134,30 @@ class Jheberg
 	public function remoteUpload($urlUpload, $fileNameUpload = null)
 	{
 		$this->generateUploadServer();
-		$requestOptions = array(
-			"server" => "upload",
-			"command" => "remote/",
-		);
-		$datasPost = $this->buildPostUser();
-		$datasPost["url"] = $urlUpload;
-		if($fileNameUpload != null)
+		if(!$this->haveError())
 		{
-			$datasPost["filename"] = $fileNameUpload;
-		}
-		$curlOptions = array(
-			"POSTFIELDS" => $datasPost,
+			$this->setLastAction(__FUNCTION__);
+			$requestOptions = array(
+				"server" => "upload",
+				"command" => "remote/",
 			);
-		$infoFile = $this->ask($requestOptions, $curlOptions);
-		if(!empty($infoFile))
-		{
-			return empty($infoFile->error) ? $infoFile : $this->newError("JHEBERG REMOTE ERROR", $infoFile->error);
+			$datasPost = $this->buildPostUser();
+			$datasPost["url"] = $urlUpload;
+			if($fileNameUpload != null)
+			{
+				$datasPost["filename"] = $fileNameUpload;
+			}
+			$curlOptions = array(
+				"POSTFIELDS" => $datasPost,
+				);
+			$infoFile = $this->ask($requestOptions, $curlOptions);
+			if(!empty($infoFile))
+			{
+				return empty($infoFile->error) ? $infoFile : $this->newError("JHEBERG REMOTE ERROR", $infoFile->error);
+			}
+			return $this->newError("ERROR REMOTE UPLOAD");
 		}
-		return $this->newError("ERROR REMOTE UPLOAD");
+		return null;
 	}
 	/**
 	 * Renvoie la disponibilité du fichier
@@ -150,7 +167,8 @@ class Jheberg
 	public function validityLink($idFile)
 	{
 		$infoFile = $this->getInfoLink($idFile);
-		return !empty($infoFile);
+		$this->setLastAction(__FUNCTION__);
+		return !empty($infoFile) ? true : $this->newError("MISSING FILE");
 	}
 	/**
 	 * Renvoie les informations de base sur un fichier et renvoie la disponibilité sur les hébergeurs
@@ -159,6 +177,7 @@ class Jheberg
 	 */
 	public function getInfoLink($idFile)
 	{
+		$this->setLastAction(__FUNCTION__);
 		$requestOptions = array(
 			"command" => "verify/file/?id=$idFile",
 			);
@@ -174,6 +193,7 @@ class Jheberg
 	 */
 	public function retrieveListFiles()
 	{
+		$this->setLastAction(__FUNCTION__);
 		if($this->haveUser())
 		{
 			$requestOptions = array(
@@ -194,6 +214,7 @@ class Jheberg
 	 */
 	public function createDirectory($nameDirectory)
 	{
+		$this->setLastAction(__FUNCTION__);
 		if($this->haveUser())
 		{
 			$requestOptions = array(
@@ -218,6 +239,7 @@ class Jheberg
 	 */
 	public function putPasswordFile($passwordFile, $idFile)
 	{
+		$this->setLastAction(__FUNCTION__);
 		if($this->haveUser())
 		{
 			$requestOptions = array(
@@ -382,6 +404,19 @@ class Jheberg
 		return $datasPost;
 	}
 	/**
+	 * Défini la dernière methode exécuté
+	 * @param string $lastAction
+	 * @access private
+	 */
+	private function setLastAction($lastAction)
+	{
+		$this->lastAction = $lastAction;
+		if(isset($this->error[$this->lastAction]))
+		{
+			unset($this->error[$this->lastAction]);
+		}
+	}
+	/**
 	 * Cree une nouvelle erreur 
 	 * @param  string $internalMessage Message interne en cas d'erreur
 	 * @param  string $jhebergMessage  Message retourné par l'API de Jheberg
@@ -390,12 +425,15 @@ class Jheberg
 	 */
 	private function newError($internalMessage, $jhebergMessage = null)
 	{
-		$this->error[] = array(
-			"internalMessage" => $internalMessage,
-			"jhebergMessage" => $jhebergMessage,
-			"httpCode" => $this->httpCode,
-			"completMessage" => $internalMessage." // ".$jhebergMessage." // http code ".$this->httpCode,
-			);
+		if($this->lastAction != null)
+		{
+			$this->error[$this->lastAction] = array(
+				"internalMessage" => $internalMessage,
+				"jhebergMessage" => $jhebergMessage,
+				"httpCode" => $this->httpCode,
+				"completMessage" => $internalMessage." // ".$jhebergMessage." // http code ".$this->httpCode,
+				);
+		}
 		return null;
 	}
 	/**
@@ -404,7 +442,7 @@ class Jheberg
 	 */
 	public function haveError()
 	{
-		return !empty($this->error);
+		return !empty($this->error[$this->lastAction]);
 	}
 	/**
 	 * Retourne la dernière erreur
@@ -412,7 +450,7 @@ class Jheberg
 	 */
 	public function getLastError()
 	{
-		return end($this->error);
+		return isset($this->error[$this->lastAction]) ? $this->error[$this->lastAction] : array();
 	}
 	/**
 	 * Retourne toutes les erreurs
